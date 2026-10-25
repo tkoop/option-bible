@@ -498,7 +498,7 @@ fireEvent({
 
 		var upperLower = settings.case[0].toUpperCase();
 
-		return "YCB-" + letter + nameLetter + upperLower + youLetter();
+		return "YCB-" + letter + nameLetter + upperLower + youLetter() + styleLetter();
 	}
 
 	// Plural You is the last tag letter because it is the last setting the
@@ -518,6 +518,21 @@ fireEvent({
 				return "P";
 			default:
 				return "Y";
+		}
+	}
+
+	function styleLetter() {
+		switch (settings.style) {
+			case "college-professor":
+				return "P";
+			case "grade-4":
+				return "4";
+			case "grade-8":
+				return "8";
+			case "grade-12":
+				return "T";
+			default:
+				return "B";
 		}
 	}
 
@@ -922,6 +937,17 @@ fireEvent({
 			if (order != "alphabetical" && settings.order != order) {
 				order = settings.order;
 				applyOrderToAllContainers();
+			}
+			// A new Style means a new translation: reload the chapter in it.
+			if (window.__lastStyle !== undefined && settings.style !== window.__lastStyle) {
+				window.__lastStyle = settings.style;
+				var book = currentBook();
+				var chapter = currentBookChapter();
+				if (book && chapter) {
+					loadURL(chapterUrl(book.slug, chapter), true);
+				}
+			} else {
+				window.__lastStyle = settings.style;
 			}
 		}
 	);
@@ -1559,6 +1585,7 @@ fireEvent({
 	function applyWordStudyLinks(slug, chapterNum) {
 		unwrapWordLinks();
 		if (!settings.wordStudyLinks) return;
+		if (!supportsWordStudy()) return;
 		if (!slug) {
 			var book = currentBook();
 			if (!book) return;

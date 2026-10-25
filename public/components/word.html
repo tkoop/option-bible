@@ -92,6 +92,12 @@
 
 		var content = document.getElementById("wordContent");
 		if (content) content.innerHTML = "";
+		if (!supportsWordStudy()) {
+			wordStudyStatus(
+				"Word study is available in the Berean Standard Bible. Switch Style to BSB to use it."
+			);
+			return;
+		}
 		if (!/^[GH]\d{4}$/.test(key)) {
 			wordStudyStatus("No word study for “" + key + "”.");
 			return;

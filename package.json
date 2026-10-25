@@ -5,6 +5,7 @@
 	"version": "1.0.0",
 	"scripts": {
 		"compile": "node compile.mjs",
+		"compile:sources": "node stage1/build.mjs",
 		"serve": "node node_modules/simplehttpserver/cli.js public",
 		"tests": "npx cypress open -b chrome --e2e",
 		"testscli": "npx cypress run -b chrome --e2e",

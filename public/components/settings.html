@@ -172,6 +172,24 @@
 	</div>
 </div>
 
+<div class="version-setting" style="display: flex">
+	<div>Style</div>
+	<div>
+		<select
+			style="padding: 6px; border-radius: 6px"
+			id="style"
+			onclick="event.stopPropagation()"
+			onchange="fireEvent({name:'setSetting', setting:'style', value:this.options[this.selectedIndex].value}); event.stopPropagation()"
+		>
+			<option value="bsb">Berean Standard Bible</option>
+			<option value="college-professor">College Professor</option>
+			<option value="grade-4">Grade 4</option>
+			<option value="grade-8">Grade 8</option>
+			<option value="grade-12">Grade 12</option>
+		</select>
+	</div>
+</div>
+
 <hr class="menu-divider" />
 
 <div onclick="fireEvent({name:'advancedMenuRequested', eventObject:event})">Advanced</div>
@@ -241,6 +259,10 @@
 
 		document.querySelectorAll("select#you option").forEach((op) => {
 			if (op.value == settings.you) op.selected = true;
+		});
+
+		document.querySelectorAll("select#style option").forEach((op) => {
+			if (op.value == settings.style) op.selected = true;
 		});
 
 		document.querySelector("input[data-value=titles]").checked =

@@ -10,8 +10,9 @@
 
 ## Data pipeline
 
-There are five independent build pipelines. Only the first is wired to an
-npm script; the rest are run by hand when their inputs or logic change.
+There are five independent build pipelines. Only the first and the eighth are
+wired to npm scripts; the rest are run by hand when their inputs or logic
+change.
 
 1. `npm run compile` turns the unzipped BSB epub in `bsb/` into
    `public/translations/bsb/*.html` and `public/search.json`. It does not read
@@ -32,6 +33,14 @@ npm script; the rest are run by hand when their inputs or logic change.
    `resources/planFixture.json`: the notification bodies the server has to be
    able to reproduce. It exists to pin the port in `server/Schedule.php`, and
    `server/ScheduleTest.php` fails if the two disagree.
+8. `npm run compile:sources` (`node stage1/build.mjs [id ...]`) builds the
+   hand-made translations in `sources/<id>/` into `public/translations/<id>/`,
+   one directory per translation, and writes each one's `search.json` beside
+   its chapters. Each source chapter is normalized to the fragment contract
+   and run through stage 2 - which is where its divine pronouns and titles
+   become `cap`/`nocap`/`bsb` variants. The script validates every file as it
+   goes and reports damaged sources instead of repairing them; it exits 1 when
+   it found any, and the report is the list of files a human has to fix.
 
 6 and 7 are run together by `npm run pushfixtures`.
 

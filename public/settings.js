@@ -12,6 +12,7 @@ var settings = {
 	verses: false,
 	you: "youpl",
 	woc: false,
+	style: "bsb",
 	order: "canonical",
 	pageturning: false,
 	wordStudyLinks: false,
@@ -53,6 +54,7 @@ var shareableSettings = {
 	n: "name",
 	c: "case",
 	y: "you",
+	t: "style",
 };
 
 var shareableValues = {
@@ -71,6 +73,7 @@ var shareableValues = {
 	],
 	case: ["lower", "upper", "bsb"],
 	you: ["you", "youcoloured", "youpl", "youall", "yall", "youguys"],
+	style: ["bsb", "college-professor", "grade-4", "grade-8", "grade-12"],
 };
 
 // Settings that came from a shared link belong to the sharer, not the reader:
@@ -229,6 +232,8 @@ settings.name = localStorageSettings?.name ?? "Yahweh";
 	settings.you = localStorageSettings?.you ?? "youpl";
 	settings.woc = localStorageSettings?.woc ?? false;
 	settings.wordStudyLinks = localStorageSettings?.wordStudyLinks ?? false;
+	settings.style = localStorageSettings?.style ?? "bsb";
+	if (shareableValues.style.indexOf(settings.style) == -1) settings.style = "bsb";
 	settings.browseHistory = JSON.parse(localStorage?.browseHistory ?? "[]");
 
 	// normalize legacy date strings and persist the cleanup if anything changed
@@ -278,6 +283,7 @@ function saveSettingsToLocalStorage() {
 		order: settings.order,
 		pageturning: settings.pageturning,
 		wordStudyLinks: settings.wordStudyLinks,
+		style: ownSetting("style"),
 		activity: settings.activity,
 		readRate: settings.readRate,
 		readVoice: settings.readVoice,

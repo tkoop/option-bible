@@ -38,6 +38,7 @@
 <script>
 	var searchIndex = null;
 	var searchIndexLoading = null;
+	var lastSearchStyle = settings.style;
 	var bookNames = {};
 	var lastSearch = null;
 	var HISTORY_KEY = "searchHistory";
@@ -156,7 +157,7 @@
 	function loadSearchIndex() {
 		if (searchIndex) return Promise.resolve(searchIndex);
 		if (searchIndexLoading) return searchIndexLoading;
-		searchIndexLoading = fetch("search.json?version=2")
+		searchIndexLoading = fetch(searchUrl() + "?version=3")
 			.then((r) => r.json())
 			.then((data) => {
 				searchIndex = data;
@@ -168,6 +169,18 @@
 			});
 		return searchIndexLoading;
 	}
+
+	registerEventListener(
+		(e) => e.name == "settingsUpdated",
+		function (event) {
+			if (settings.style === lastSearchStyle) return;
+			lastSearchStyle = settings.style;
+			searchIndex = null;
+			searchIndexLoading = null;
+			var input = document.getElementById("searchInput");
+			if (input && input.value) runSearch(input.value, false);
+		}
+	);
 
 	var debounceTimer = null;
 	var inputEl = document.getElementById("searchInput");
