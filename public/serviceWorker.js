@@ -30,7 +30,7 @@ self.addEventListener("push", function (event) {
 		}
 	}
 	var data = payload.data || {};
-	var title = payload.title || "Your Custom Bible";
+	var title = payload.title || "Option Bible";
 	var options = {
 		body: payload.body || "",
 		icon: "images/logo.png",

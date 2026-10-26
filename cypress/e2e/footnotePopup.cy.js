@@ -2,7 +2,7 @@ describe("footnote popup", () => {
   beforeEach(() => {
     cy.clearLocalStorage();
     cy.visit("http://localhost:8000/#Jhn-1");
-    cy.get("#chapter").should("contain", "John 1 (YCB-");
+    cy.get("#chapter").should("contain", "John 1 (O-");
     cy.get("#chapter .reftext#v1").should("exist");
     cy.window().then((win) => win.document.fonts.ready);
   });

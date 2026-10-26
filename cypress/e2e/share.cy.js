@@ -21,7 +21,7 @@ describe("share", () => {
     openShare();
 
     cy.get('[data-cy="shareRef"]').should("have.text", "Genesis 1");
-    cy.get('[data-cy="shareTag"]').should("have.text", " (YCB-CYLP)");
+    cy.get('[data-cy="shareTag"]').should("have.text", " (O-CYLP)");
     shareUrl().should(
       "have.value",
       "http://localhost:8000/#Gen-1?s=ca&n=Yahweh&c=lower&y=youpl",
@@ -41,7 +41,7 @@ describe("share", () => {
       "have.value",
       "http://localhost:8000/#Gen-1?s=ca&n=Elohim&c=lower&y=yall",
     );
-    cy.get('[data-cy="shareTag"]').should("have.text", " (YCB-CELV)");
+    cy.get('[data-cy="shareTag"]').should("have.text", " (O-CELV)");
   });
 
   it("copies the link and says so", () => {
@@ -110,7 +110,7 @@ describe("share", () => {
     visitShared("?s=us&n=YHWH&c=upper&y=yall");
 
     // The chapter reads as the sharer sees it, and says where that came from.
-    cy.get("#chapter").should("contain", "Genesis 1 (YCB-UWUV)");
+    cy.get("#chapter").should("contain", "Genesis 1 (O-UWUV)");
     cy.get("#chapter").should("contain", "y'all");
     cy.get(".version-shared").should("be.visible");
 
@@ -155,7 +155,7 @@ describe("share", () => {
 
     // The version on screen does not change - the reader is keeping it - but
     // it is theirs now, and the address bar stops claiming otherwise.
-    cy.get("#chapter").should("contain", "Genesis 1 (YCB-UWUV)");
+    cy.get("#chapter").should("contain", "Genesis 1 (O-UWUV)");
     cy.location("hash").should("eq", "#Gen-1");
     cy.get(".version-shared").should("not.be.visible");
     cy.get("#settingsDropdown select#name").should("have.value", "YHWH");
@@ -163,7 +163,7 @@ describe("share", () => {
 
     // And it survives a reload, because it was written to localStorage.
     cy.reload();
-    cy.get("#chapter").should("contain", "Genesis 1 (YCB-UWUV)");
+    cy.get("#chapter").should("contain", "Genesis 1 (O-UWUV)");
     cy.window().then((win) => {
       expect(JSON.parse(win.localStorage.settings).name).to.eq("YHWH");
     });
@@ -176,14 +176,14 @@ describe("share", () => {
     cy.get("#gearIcon").click();
     cy.get('[data-cy="discardShared"]').click();
 
-    cy.get("#chapter").should("contain", "Genesis 1 (YCB-CJLY)");
+    cy.get("#chapter").should("contain", "Genesis 1 (O-CJLY)");
     cy.location("hash").should("eq", "#Gen-1");
     cy.get(".version-shared").should("not.be.visible");
     cy.get("#settingsDropdown select#name").should("have.value", "Jehovah");
     cy.get("#settingsDropdown select#you").should("have.value", "you");
 
     cy.reload();
-    cy.get("#chapter").should("contain", "Genesis 1 (YCB-CJLY)");
+    cy.get("#chapter").should("contain", "Genesis 1 (O-CJLY)");
   });
 
   it("adopts only what the link carried", () => {
@@ -197,7 +197,7 @@ describe("share", () => {
     cy.location("hash").should("eq", "#Gen-1");
 
     cy.reload();
-    cy.get("#chapter").should("contain", "Genesis 1 (YCB-CELY)");
+    cy.get("#chapter").should("contain", "Genesis 1 (O-CELY)");
     cy.window().then((win) => {
       const stored = JSON.parse(win.localStorage.settings);
       expect(stored.name).to.eq("Elohim");
@@ -212,7 +212,7 @@ describe("share", () => {
     cy.window().then((win) => {
       win.location.hash = "#Gen-1?s=us&n=YHWH&c=upper&y=yall";
     });
-    cy.get("#chapter").should("contain", "Genesis 1 (YCB-UWUV)");
+    cy.get("#chapter").should("contain", "Genesis 1 (O-UWUV)");
     cy.get("#chapter").should("contain", "y'all");
   });
 
@@ -220,12 +220,12 @@ describe("share", () => {
     visitShared("?s=us&n=YHWH&c=upper&y=yall");
 
     cy.get('[data-cy="chapterRight"]').first().click();
-    cy.get("#chapter").should("contain", "Genesis 2 (YCB-UWUV)");
+    cy.get("#chapter").should("contain", "Genesis 2 (O-UWUV)");
     cy.location("hash").should("eq", "#Gen-2?s=us&n=YHWH&c=upper&y=yall");
 
     // A reload of that URL comes back with the same version on screen.
     cy.reload();
-    cy.get("#chapter").should("contain", "Genesis 2 (YCB-UWUV)");
+    cy.get("#chapter").should("contain", "Genesis 2 (O-UWUV)");
   });
 
   it("ignores values the gear menu does not offer", () => {
@@ -233,7 +233,7 @@ describe("share", () => {
     // settings.spelling into a CSS selector.
     visitShared("?s=uk&n=<img src=x onerror=alert(1)>&c=zzz&y=drop+table");
 
-    cy.get("#chapter").should("contain", "Genesis 1 (YCB-CYLP)");
+    cy.get("#chapter").should("contain", "Genesis 1 (O-CYLP)");
     cy.get("#chapter img").should("not.exist");
     cy.window().then((win) => {
       expect(win.settings.name).to.eq("Yahweh");

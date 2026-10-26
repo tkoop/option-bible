@@ -182,7 +182,7 @@ is the half a fingertip runs out of first on a superscript anyway. 0.85em with
 
 ## Shared links (chapter URL)
 
-A chapter hash may carry the four settings the `YCB-` version tag is built
+A chapter hash may carry the four settings the `O-` version tag is built
 from, after a `?`:
 
     #Gen-1?s=us&n=YHWH&c=upper&y=youall

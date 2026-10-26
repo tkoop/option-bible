@@ -11,7 +11,7 @@ describe('template spec', () => {
     cy.contains("Genesis").click()
     cy.get("[data-cy='homeGenesis']").should("be.visible")
     cy.get("[data-cy='homeGenesis']").contains("50")
-    cy.get(".brand-title").should("contain", "Your Custom Bible")
+    cy.get(".brand-title").should("contain", "Option Bible")
   })
 
   it("index page", () => {
@@ -69,7 +69,7 @@ describe('template spec', () => {
     cy.get("div#dropdown").contains("Search").click()
 
     cy.get("#searchInput").type("let there be light")
-    cy.contains(".brand-title", "Your Custom Bible")
+    cy.contains(".brand-title", "Option Bible")
     cy.get(".search-result", { timeout: 10000 })
       .should("have.length.greaterThan", 0)
     cy.get(".search-ref").first().should("contain", "Genesis 1:3")

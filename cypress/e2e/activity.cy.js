@@ -88,7 +88,7 @@ describe("activity types", () => {
 		cy.get("#homeActivity select").select("devotions");
 		cy.get("#homePicker").contains("Genesis").click();
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("1").click();
-		cy.get("#chapter").should("contain", "Genesis 1 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 1 (O-CYLP)");
 
 		goToHistory();
 		cy.get(".history-day .history-entry").should("have.length", 1);
@@ -100,7 +100,7 @@ describe("activity types", () => {
 		cy.get("#homeActivity select").select("other3");
 		cy.get("#homePicker").contains("Genesis").click();
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("2").click();
-		cy.get("#chapter").should("contain", "Genesis 2 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 2 (O-CYLP)");
 
 		goToHistory();
 		cy.window().then((win) => {
@@ -119,13 +119,13 @@ describe("activity types", () => {
 		cy.get("#homeActivity select").select("devotions");
 		cy.get("#homePicker").contains("Genesis").click();
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("1").click();
-		cy.get("#chapter").should("contain", "Genesis 1 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 1 (O-CYLP)");
 
 		cy.get("#brand").click();
 		cy.get("#homeActivity select").select("church");
 		// the book is still open in the picker from the first read
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("2").click();
-		cy.get("#chapter").should("contain", "Genesis 2 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 2 (O-CYLP)");
 
 		goToHistory();
 		cy.get(".history-entry.act-devotions").should("have.length", 1);
@@ -144,13 +144,13 @@ describe("activity types", () => {
 		cy.get("#homeActivity select").select("devotions");
 		cy.get("#homePicker").contains("Genesis").click();
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("1").click();
-		cy.get("#chapter").should("contain", "Genesis 1 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 1 (O-CYLP)");
 
 		cy.get("#brand").click();
 		cy.get("#homeActivity select").select("church");
 		// the book is still open in the picker from the first read
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("2").click();
-		cy.get("#chapter").should("contain", "Genesis 2 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 2 (O-CYLP)");
 
 		goToHistory();
 		cy.get(".history-entry").should("have.length", 2);
@@ -212,16 +212,16 @@ describe("activity types", () => {
 		cy.get("#homeActivity select").select("devotions");
 		cy.get("#homePicker").contains("Genesis").click();
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("1").click();
-		cy.get("#chapter").should("contain", "Genesis 1 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 1 (O-CYLP)");
 
 		cy.get("#brand").click();
 		cy.get("#homeActivity select").select("church");
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("2").click();
-		cy.get("#chapter").should("contain", "Genesis 2 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 2 (O-CYLP)");
 
 		goToHistory();
 		cy.get(".history-entry.act-devotions").contains("Genesis 1").click();
-		cy.get("#chapter").should("contain", "Genesis 1 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 1 (O-CYLP)");
 		cy.window().should((win) => {
 			expect(win.settings.activity).to.eq("devotions");
 			expect(JSON.parse(win.localStorage.settings).activity).to.eq("devotions");

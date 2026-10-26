@@ -82,7 +82,7 @@ describe("home page", () => {
 	it("chapter picker card opens a chapter", () => {
 		cy.get("#homePicker").contains("Genesis").click();
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("1").click();
-		cy.get("#chapter").should("contain", "Genesis 1 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 1 (O-CYLP)");
 		cy.location("hash").should("eq", "#Gen-1");
 	});
 
@@ -102,7 +102,7 @@ describe("home page", () => {
 				win.chapterRefName(target.book.name) +
 					" " +
 					target.chapter +
-					" (YCB-CYLP)",
+					" (O-CYLP)",
 			);
 			cy.location("hash").should(
 				"eq",
@@ -116,13 +116,13 @@ describe("home page", () => {
 
 		cy.get("#homePicker").contains("Genesis").click();
 		cy.get("#homePicker [data-cy='homeGenesis']").contains("3").click();
-		cy.get("#chapter").should("contain", "Genesis 3 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 3 (O-CYLP)");
 
 		cy.get("#brand").click();
 		cy.get("#homeContinue").should("contain", "Genesis 3");
 
 		cy.get("#homeContinue").contains("Genesis 3").click();
-		cy.get("#chapter").should("contain", "Genesis 3 (YCB-CYLP)");
+		cy.get("#chapter").should("contain", "Genesis 3 (O-CYLP)");
 	});
 
 	it("Continue card links to the History page", () => {

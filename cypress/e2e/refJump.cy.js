@@ -69,7 +69,7 @@ describe("reference jump", () => {
     field().type("{enter}");
 
     cy.get("#chapterTitle").should("contain", "John 3");
-    chapterTitle().should("match", /^John 3 \(YCB-/);
+    chapterTitle().should("match", /^John 3 \(O-/);
     // A chapter with no verse in it has nothing to mark.
     cy.get("#chapter .chapter-hl").should("not.exist");
     cy.get("[data-cy='clearHighlights']").should("not.be.visible");
