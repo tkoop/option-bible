@@ -65,6 +65,11 @@ function historyFilterHtml(ids) {
 }
 
 function recreateHistory() {
+  // Re-read from storage so the list is never stale, even if it was updated
+  // in another tab or the in-memory copy drifted.
+  try {
+    settings.browseHistory = JSON.parse(localStorage?.browseHistory ?? "[]")
+  } catch (e) {}
   const entries = settings.browseHistory.filter(entry => entry && entry.slug)
   let html = ""
 
@@ -104,6 +109,16 @@ recreateHistory()
 registerEventListener(e => e.name == "showPage" && e.page=="history", function(event) {
   recreateHistory()
 })
+
+// Refresh whenever the page becomes visible again, so a stale list is never
+// shown after reading chapters or returning from another tab.
+function refreshHistoryIfVisible() {
+  if (window.currentPage === "history" && document.visibilityState === "visible") {
+    recreateHistory()
+  }
+}
+document.addEventListener("visibilitychange", refreshHistoryIfVisible)
+window.addEventListener("focus", refreshHistoryIfVisible)
 
 
 </script>
