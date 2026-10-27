@@ -488,16 +488,15 @@ fireEvent({
 	}
 
 	function getVersion() {
+		if (typeof versionTag == "function") return versionTag();
+		// Fallback (should not happen: settings.js loads first).
 		var letter = settings.spelling.substr(0, 1).toUpperCase();
 		if (letter == "G") letter = "B";
-
 		var nameLetter = settings.name[0];
 		if (settings.name == "G-d") nameLetter = "D";
 		if (settings.name == "YHWH") nameLetter = "W";
 		if (settings.name == "YHVH") nameLetter = "V";
-
 		var upperLower = settings.case[0].toUpperCase();
-
 		return "O-" + letter + nameLetter + upperLower + youLetter() + styleLetter();
 	}
 

@@ -24,7 +24,7 @@ describe("share", () => {
     cy.get('[data-cy="shareTag"]').should("have.text", " (O-CYLP)");
     shareUrl().should(
       "have.value",
-      "http://localhost:8000/#Gen-1?s=ca&n=Yahweh&c=lower&y=youpl",
+      "http://localhost:8000/#Gen-1?O-CYLPB",
     );
   });
 
@@ -39,7 +39,7 @@ describe("share", () => {
     openShare();
     shareUrl().should(
       "have.value",
-      "http://localhost:8000/#Gen-1?s=ca&n=Elohim&c=lower&y=yall",
+      "http://localhost:8000/#Gen-1?O-CELVB",
     );
     cy.get('[data-cy="shareTag"]').should("have.text", " (O-CELV)");
   });
@@ -54,7 +54,7 @@ describe("share", () => {
 
     cy.get("@writeText").should(
       "have.been.calledWith",
-      "http://localhost:8000/#Gen-1?s=ca&n=Yahweh&c=lower&y=youpl",
+      "http://localhost:8000/#Gen-1?O-CYLPB",
     );
     cy.get('[data-cy="shareCopy"]').should("have.text", "Copied");
     cy.get('[data-cy="shareStatus"]').should("contain", "Link copied");
