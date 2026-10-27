@@ -17,6 +17,9 @@
 //   } finally {
 //     await browser.close();
 //   }
+//
+// `launch({ extraArgs })` adds chromium flags of its own - host-resolver-rules,
+// for reaching the app under a hostname nothing serves in DNS.
 
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
@@ -40,7 +43,10 @@ function findChromium() {
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function launch({ port = 9222 + Math.floor(Math.random() * 400) } = {}) {
+export async function launch({
+	port = 9222 + Math.floor(Math.random() * 400),
+	extraArgs = [],
+} = {}) {
 	const binary = findChromium();
 	const profile = mkdtempSync(join(tmpdir(), "cdp-profile-"));
 
@@ -53,6 +59,7 @@ export async function launch({ port = 9222 + Math.floor(Math.random() * 400) } =
 			"--disable-dev-shm-usage",
 			"--remote-debugging-port=" + port,
 			"--user-data-dir=" + profile,
+			...extraArgs,
 			"about:blank",
 		],
 		{ stdio: "ignore" },
@@ -82,6 +89,7 @@ export async function launch({ port = 9222 + Math.floor(Math.random() * 400) } =
 
 	let nextId = 1;
 	const pending = new Map();
+	const eventListeners = new Map();
 	socket.addEventListener("message", (event) => {
 		const message = JSON.parse(event.data);
 		if (message.id && pending.has(message.id)) {
@@ -89,6 +97,15 @@ export async function launch({ port = 9222 + Math.floor(Math.random() * 400) } =
 			pending.delete(message.id);
 			if (message.error) reject(new Error(message.error.message));
 			else resolve(message.result);
+		} else if (message.method) {
+			const listeners = eventListeners.get(message.method);
+			if (listeners) {
+				for (const cb of listeners) {
+					try {
+						cb(message.params);
+					} catch (e) {}
+				}
+			}
 		}
 	});
 
@@ -133,7 +150,28 @@ export async function launch({ port = 9222 + Math.floor(Math.random() * 400) } =
 			return result.result.value;
 		},
 
-		/** Waits for an expression to become truthy. */
+		/** Injects a script that runs before any of the document's own scripts. */
+		async addScriptToEvaluateOnNewDocument(source) {
+			const result = await send(
+				"Page.addScriptToEvaluateOnNewDocument",
+				{ source },
+			);
+			return result.identifier;
+		},
+
+		on(method, cb) {
+			if (!eventListeners.has(method)) eventListeners.set(method, new Set());
+			eventListeners.get(method).add(cb);
+			return () => {
+				const s = eventListeners.get(method);
+				if (s) s.delete(cb);
+			};
+		},
+
+		async enableNetwork() {
+			await send("Network.enable", {});
+		},
+
 		async waitFor(expression, { timeout = 10000, label } = {}) {
 			const started = Date.now();
 			while (Date.now() - started < timeout) {

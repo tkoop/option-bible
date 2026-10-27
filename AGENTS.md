@@ -3,6 +3,10 @@
 ## Project notes
 
 - Static PWA. Serve locally with `npm run serve` (serves `public/`).
+- The app answers on `bible.trth.app`. `index.html` redirects any other domain
+  there, path, query and hash preserved. Localhost names and IP addresses are
+  exempt, because that is how it is developed and tested (`npm run serve`,
+  Cypress, `tools/testPushUi.mjs`).
 - Tests: Cypress (E2E). Note: `node_modules/.bin/cypress` is broken in this repo;
   use `node node_modules/cypress/bin/cypress run -b chromium` instead.
 - Verify browser behavior with headless Chromium CDP when Cypress can't run
