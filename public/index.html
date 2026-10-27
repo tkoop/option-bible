@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="theme-color" content="#34507a" />
 		<title>Option Bible</title>
-<link rel="stylesheet" href="style.css?version=68" />
+<link rel="stylesheet" href="style.css?version=69" />
 		<link rel="icon" type="image/png" href="images/logo.png?version=5" />
 		<link rel="manifest" href="manifest.json?version=2" />
 	</head>
@@ -326,7 +326,10 @@ await loadComponent("speedReader", "components/speedReader.html?version=10");
 				spellcheck="false"
 			/>
 			<p class="slash-jump-hint">Type a Bible reference (e.g. John 3:16) or any word to search.</p>
-			<p id="slashJumpStatus" class="slash-jump-status"></p>
+			<p id="slashJumpStatus" class="slash-jump-status">
+				<span id="slashJumpSpinner" class="slash-jump-spinner" hidden></span>
+				<span id="slashJumpStatusText"></span>
+			</p>
 		</div>
 	</div>
 
@@ -336,10 +339,12 @@ await loadComponent("speedReader", "components/speedReader.html?version=10");
 			var input = document.getElementById("slashJumpInput");
 			var backdrop = document.getElementById("slashJumpBackdrop");
 			var status = document.getElementById("slashJumpStatus");
+			var statusText = document.getElementById("slashJumpStatusText");
+			var spinner = document.getElementById("slashJumpSpinner");
 			function updateSlashStatus() {
 				var value = (input.value || "").trim();
 				if (!value) {
-					status.textContent = "";
+					statusText.textContent = "";
 					return;
 				}
 				var suggestions =
@@ -347,15 +352,17 @@ await loadComponent("speedReader", "components/speedReader.html?version=10");
 						? refSuggestions(value, 1)
 						: [];
 				if (suggestions && suggestions.length) {
-					status.textContent = "Reference: " + suggestions[0].label;
+					statusText.textContent = "Reference: " + suggestions[0].label;
 				} else {
-					status.textContent = "Text search: " + value;
+					statusText.textContent = "Text search: " + value;
 				}
 			}
 			function openSlashJump() {
 				overlay.hidden = false;
 				input.value = "";
-				status.textContent = "";
+				statusText.textContent = "";
+				if (spinner) spinner.hidden = true;
+				input.disabled = false;
 				setTimeout(function () {
 					input.focus();
 				}, 0);
@@ -369,13 +376,16 @@ await loadComponent("speedReader", "components/speedReader.html?version=10");
 			input.addEventListener("keydown", function (event) {
 				if (event.key === "Enter") {
 					var value = input.value.trim();
-					closeSlashJump();
-					if (!value) return;
+					if (!value) {
+						closeSlashJump();
+						return;
+					}
 					var suggestions =
 						typeof refSuggestions === "function"
 							? refSuggestions(value, 1)
 							: [];
 					if (suggestions && suggestions.length) {
+						closeSlashJump();
 						var ref = suggestions[0];
 						if (ref.verse) {
 							window.scrollVerse = ref.verse;
@@ -391,25 +401,42 @@ await loadComponent("speedReader", "components/speedReader.html?version=10");
 						// A plain word search: the reader is taken straight to
 						// the first match, with the rest of them a step away.
 						if (typeof runSearch !== "function") {
+							closeSlashJump();
 							window.pendingSearchQuery = value;
 							fireEvent({ name: "showPage", page: "search" });
 							return;
 						}
-						runSearch(value, true).then(function (hits) {
-							if (!hits || !hits.length) {
-								// Nothing to go to, so the results page shows
-								// the search and the fact that it found nothing.
+						// Keep the dialog open with a spinner so the reader knows
+						// the (possibly large) search index is still loading.
+						statusText.textContent = "Searching\u2026";
+						if (spinner) spinner.hidden = false;
+						input.disabled = true;
+						runSearch(value, true)
+							.then(function (hits) {
+								if (spinner) spinner.hidden = true;
+								input.disabled = false;
+								closeSlashJump();
+								if (!hits || !hits.length) {
+									// Nothing to go to, so the results page shows
+									// the search and the fact that it found nothing.
+									window.pendingSearchQuery = value;
+									fireEvent({ name: "showPage", page: "search" });
+									return;
+								}
+								if (typeof openVerse === "function") {
+									openVerse(hits[0]);
+								} else {
+									window.pendingSearchQuery = value;
+									fireEvent({ name: "showPage", page: "search" });
+								}
+							})
+							.catch(function () {
+								if (spinner) spinner.hidden = true;
+								input.disabled = false;
+								closeSlashJump();
 								window.pendingSearchQuery = value;
 								fireEvent({ name: "showPage", page: "search" });
-								return;
-							}
-							if (typeof openVerse === "function") {
-								openVerse(hits[0]);
-							} else {
-								window.pendingSearchQuery = value;
-								fireEvent({ name: "showPage", page: "search" });
-							}
-						});
+							});
 					}
 				} else if (event.key === "Escape") {
 					closeSlashJump();
