@@ -4176,6 +4176,29 @@ body.share-open {
 	font-weight: 600;
 	color: var(--primary, #2a6fdb);
 	min-height: 1.2em;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.slash-jump-spinner {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid var(--border, #ccc);
+	border-top-color: var(--primary, #2a6fdb);
+	border-radius: 50%;
+	animation: slash-jump-spin 0.7s linear infinite;
+}
+
+.slash-jump-spinner[hidden] {
+	display: none;
+}
+
+@keyframes slash-jump-spin {
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 #highlightNav button {
