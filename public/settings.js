@@ -76,6 +76,113 @@ var shareableValues = {
 	style: ["bsb", "college-professor", "grade-4", "grade-8", "grade-12"],
 };
 
+// Compact encoding of all five shareable settings as the "O-..." version tag
+// used in the chapter title, so a share URL can carry them as one short token.
+var versionTagLetters = {
+	spelling: function (v) {
+		return v == "gb" ? "B" : v.substr(0, 1).toUpperCase();
+	},
+	name: function (v) {
+		if (v == "G-d") return "D";
+		if (v == "YHWH") return "W";
+		if (v == "YHVH") return "V";
+		return v.substr(0, 1).toUpperCase();
+	},
+	case: function (v) {
+		return v.substr(0, 1).toUpperCase();
+	},
+	you: function (v) {
+		switch (v) {
+			case "youall":
+				return "A";
+			case "yall":
+				return "V";
+			case "youguys":
+				return "G";
+			case "youcoloured":
+				return "C";
+			case "youpl":
+				return "P";
+			default:
+				return "Y";
+		}
+	},
+	style: function (v) {
+		switch (v) {
+			case "college-professor":
+				return "P";
+			case "grade-4":
+				return "4";
+			case "grade-8":
+				return "8";
+			case "grade-12":
+				return "T";
+			default:
+				return "B";
+		}
+	},
+};
+
+var versionTagToValue = {
+	spelling: { C: "ca", B: "gb", U: "us" },
+	name: {
+		Y: "Yahweh",
+		L: "LORD",
+		J: "Jehovah",
+		W: "YHWH",
+		V: "YHVH",
+		H: "HaShem",
+		A: "Adonai",
+		E: "Elohim",
+		D: "G-d",
+		G: "God",
+	},
+	case: { L: "lower", U: "upper", B: "bsb" },
+	you: {
+		Y: "you",
+		C: "youcoloured",
+		P: "youpl",
+		A: "youall",
+		V: "yall",
+		G: "youguys",
+	},
+	style: {
+		B: "bsb",
+		P: "college-professor",
+		4: "grade-4",
+		8: "grade-8",
+		T: "grade-12",
+	},
+};
+
+function versionTag() {
+	return (
+		"O-" +
+		versionTagLetters.spelling(settings.spelling) +
+		versionTagLetters.name(settings.name) +
+		versionTagLetters.case(settings.case) +
+		versionTagLetters.you(settings.you) +
+		versionTagLetters.style(settings.style)
+	);
+}
+
+function parseVersionTag(tag) {
+	if (typeof tag != "string" || !/^O-/i.test(tag)) return null;
+	var letters = tag.slice(2);
+	if (letters.length != 5) return null;
+	var keys = ["spelling", "name", "case", "you", "style"];
+	var out = {};
+	for (var i = 0; i < keys.length; i++) {
+		var setting = keys[i];
+		var letter = letters.charAt(i).toUpperCase();
+		var value = versionTagToValue[setting][letter];
+		if (!value) return null;
+		if (shareableValues[setting].indexOf(value) == -1) return null;
+		out[setting] = value;
+	}
+	return out;
+}
+
 // Settings that came from a shared link belong to the sharer, not the reader:
 // they are applied to the page but never written back to localStorage, so the
 // reader's own choices are still there on the next visit. Each one keeps the
@@ -105,10 +212,18 @@ function applySharedSettings(query) {
 
 	var shared = {};
 	if (query) {
-		query
-			.replace(/^\?/, "")
-			.split("&")
-			.forEach(function (pair) {
+		var q = query.replace(/^\?/, "");
+		// Compact form: the whole version tag, "O-CYLPB", carries all five
+		// shareable settings in one short token.
+		if (/^O-/i.test(q) && q.indexOf("&") == -1 && q.indexOf("=") == -1) {
+			var parsed = parseVersionTag(q);
+			if (parsed) {
+				Object.keys(parsed).forEach(function (name) {
+					shared[name] = parsed[name];
+				});
+			}
+		} else {
+			q.split("&").forEach(function (pair) {
 				var at = pair.indexOf("=");
 				if (at == -1) return;
 				var setting = shareableSettings[decodeURIComponent(pair.slice(0, at))];
@@ -117,6 +232,7 @@ function applySharedSettings(query) {
 				if (shareableValues[setting].indexOf(value) == -1) return;
 				shared[setting] = value;
 			});
+		}
 	}
 
 	Object.keys(shared).forEach(function (name) {
@@ -137,17 +253,23 @@ function settingsQuery(names) {
 	return pairs.length ? "?" + pairs.join("&") : "";
 }
 
-// What the address bar carries: the settings a shared link brought, so the
-// version on screen survives a reload. A reader who arrived by their own
-// navigation keeps a clean URL.
-function sharedSettingsQuery() {
-	return settingsQuery(Object.keys(sharedSettings));
+// What the share dialog offers: the compact version tag, so the chapter opens
+// the way it looks to the sender however the reader got there, in one short token.
+function versionQuery() {
+	return "?" + versionTag();
 }
 
-// What the share dialog offers: every setting the version tag is built from, so
-// the chapter opens the way it looks to the sender however the reader got there.
-function versionQuery() {
-	return settingsQuery(Object.values(shareableSettings));
+// The address bar carries the settings a shared link brought. When all five were
+// displaced (the normal share case) carry them as the compact tag; otherwise
+// keep the per-setting form so a partial shared set keeps its subset semantics.
+function sharedSettingsQuery() {
+	var displaced = Object.keys(sharedSettings);
+	var all = Object.values(shareableSettings);
+	var allDisplaced = all.length > 0 && all.every(function (s) {
+		return displaced.indexOf(s) != -1;
+	});
+	if (allDisplaced) return "?" + versionTag();
+	return settingsQuery(displaced);
 }
 
 // The address bar carries the settings a shared link brought, so that the

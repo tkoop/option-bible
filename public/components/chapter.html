@@ -488,16 +488,15 @@ fireEvent({
 	}
 
 	function getVersion() {
+		if (typeof versionTag == "function") return versionTag();
+		// Fallback (should not happen: settings.js loads first).
 		var letter = settings.spelling.substr(0, 1).toUpperCase();
 		if (letter == "G") letter = "B";
-
 		var nameLetter = settings.name[0];
 		if (settings.name == "G-d") nameLetter = "D";
 		if (settings.name == "YHWH") nameLetter = "W";
 		if (settings.name == "YHVH") nameLetter = "V";
-
 		var upperLower = settings.case[0].toUpperCase();
-
 		return "O-" + letter + nameLetter + upperLower + youLetter() + styleLetter();
 	}
 
@@ -1915,7 +1914,10 @@ fireEvent({
 		var m;
 		while ((m = re.exec(text))) {
 			if (offset >= m.index && offset <= m.index + m[0].length) {
-				return normWord(m[0]);
+				// Return the raw match range as well, so callers can check that
+				// the click actually landed on the word's glyphs rather than in
+				// the empty vertical space of the line box around them.
+				return { word: normWord(m[0]), start: m.index, length: m[0].length };
 			}
 		}
 		return null;
@@ -1982,8 +1984,22 @@ fireEvent({
 				node = tc;
 				offset = 0;
 			}
-			var clickedWord = wordAtOffset(node.nodeValue, offset);
+			var wordHit = wordAtOffset(node.nodeValue, offset);
+			var clickedWord = wordHit ? wordHit.word : null;
 			if (!clickedWord) return;
+
+			// The caret APIs snap a click in the empty vertical space of a line
+			// box (above or below the glyphs) to the nearest word, which made the
+			// popup open when the reader clicked on "nothing". Only open it when
+			// the click actually landed on a word link's box, and not in the
+			// ascent/descent padding above or below its glyphs.
+			var linkEl = ev.target && ev.target.closest ? ev.target.closest(".word-link") : null;
+			if (!linkEl) return;
+			var linkRect = linkEl.getBoundingClientRect();
+			var vTol = 3;
+			if (ev.clientY < linkRect.top + vTol || ev.clientY > linkRect.bottom - vTol) {
+				return;
+			}
 
 			var refEl = nearestPrecedingReftext(node);
 			if (!refEl || refEl.contains(node)) return;
@@ -2005,6 +2021,12 @@ fireEvent({
 
 			loadWordData(book.slug)
 				.then(function (data) {
+					// The lookup is async; if the reader has since navigated to a
+					// different book or chapter, do not pop up on the page now
+					// showing. Mirrors the stale-lookup guard in applyWordStudyLinks.
+					var bookNow = currentBook();
+					if (!bookNow || bookNow.slug != book.slug) return;
+					if (currentBookChapter() != chapter) return;
 					var entries = wordDataEntry(book.slug, verseKey);
 					if (!entries) return;
 					var entry = findVerseEntry(entries, vt, clickedIndex, clickedWord);
