@@ -9,6 +9,17 @@
 		function (event) {
 			applySettings();
 			applyWordStudyLinks();
+			// Keep the version tag in the title in sync with the settings that
+			// just changed, since it is rebuilt from them.
+			document.querySelectorAll("#chapterTitle .version").forEach((el) => {
+				el.innerHTML = getVersion();
+			});
+			document
+				.querySelectorAll("#chapterTitle .version-shared")
+				.forEach(
+					(el) =>
+						(el.style.display = usingSharedSettings() ? "" : "none"),
+				);
 			// The settings rewrite some words in place and swap which spelling
 			// is on screen, so the marks are laid out again against the text as
 			// it now reads.
@@ -205,7 +216,7 @@
 				el.innerHTML = matchYou(el.dataset.word, "you", "your", "yours");
 		});
 
-		if (document.querySelectorAll(".version")) {
+		if (document.querySelectorAll(".version").length) {
 			document
 				.querySelectorAll(".version")
 				.forEach((el) => (el.innerHTML = getVersion()));
@@ -414,7 +425,7 @@
 		// word beside it is a note about where the settings behind it came from.
 		title =
 			title +
-			" (<span class='version'></span>)<span class='version-shared' title='These settings came from a shared link' style='display: none'> shared</span>";
+			"<br><span class='title-version'>(<span class='version'></span>)<span class='version-shared' title='These settings came from a shared link' style='display: none'> shared</span></span>";
 				chapter.innerHTML = addArrows(text, title);
 				// A chapter reached through a plan says which plan and which day
 				// of it, and marks each arrow with an open book only when there is

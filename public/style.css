@@ -1969,6 +1969,16 @@ body .chapter-nav button.plan-step-right .chrono-corner {
 	min-width: 0;
 }
 
+/* The version tag (the abbreviation in parenthesis) sits on its own line
+   beneath the book and chapter, at a smaller size. */
+#chapterTitle .title-version {
+	display: block;
+	font-size: 0.6em;
+	font-weight: 400;
+	letter-spacing: 0.14em;
+	margin-top: 0.15em;
+}
+
 /* Says the four settings behind the version tag came from a shared link, so the
    reader is not left wondering why the chapter reads unlike their own. */
 #chapterTitle .version-shared {
